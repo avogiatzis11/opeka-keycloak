@@ -1,0 +1,57 @@
+# Local development stack: Keycloak (realm opeka-citizens) + Postgres + mock GSIS.
+# docker compose up --build   → admin console http://localhost:8280 (admin / admin); port via KC_PORT
+name: opeka-keycloak
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 5s
+      retries: 20
+
+  keycloak:
+    build:
+      context: .
+      additional_contexts:
+        # Copy of keycloak-gsis-providers (upstream cti-nts, via HellenicSpaceCenter's KC26 fork) with INTRAWAY patches.
+        gsis-plugin: ./gsis-plugin
+    image: opeka-keycloak:26.8.1
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
+      KC_HOSTNAME: http://localhost:${KC_PORT:-8280}
+      KC_HEALTH_ENABLED: "true"
+      # Point the gsis-taxis-test provider at the mock: browser via localhost, Keycloak via the service name.
+      # Remove both to use the real https://test.gsis.gr (needs ΕΔΑ pilot credentials).
+      GSIS_TEST_URL: http://localhost:8090/oauth2server
+      GSIS_TEST_BACKCHANNEL_URL: http://mock-gsis:8090/oauth2server
+    ports:
+      - "${KC_PORT:-8280}:8080"
+    volumes:
+      - ./realms:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mock-gsis:
+    image: node:24-alpine
+    command: ["node", "/app/server.mjs"]
+    volumes:
+      - ./mock-gsis:/app:ro
+    ports:
+      - "8090:8090"
+
+volumes:
+  keycloak-db:
