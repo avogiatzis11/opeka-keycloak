@@ -248,14 +248,15 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "redirectUris": [
-        "http://localhost:8082/login/oauth2/code/taxisnet"
+        "http://localhost:8082/login/oauth2/code/taxisnet",
+        "http://localhost:8083/login/oauth2/code/taxisnet"
       ],
       "webOrigins": [
         "http://localhost:8082"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:8082/*"
+        "post.logout.redirect.uris": "http://localhost:8082/*##http://localhost:8083/*"
       },
       "protocolMappers": [
         {
