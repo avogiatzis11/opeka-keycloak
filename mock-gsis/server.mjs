@@ -1,11 +1,13 @@
 // Τοπικό mock του GSIS OAuth2 server (TAXISnet) για ανάπτυξη χωρίς διαπιστευτήρια ΕΔΑ.
-// Runs in compose.yaml; the patched gsis-taxis-test provider reaches it via GSIS_TEST_URL.
-// Mirrors the 4 endpoints of the ΚΕΔ document v6.7 and its test users. Never deploy this.
+// Runs in compose.yaml; the patched gsis-taxis-test and gsis-govuser-test providers reach it via
+// GSIS_TEST_URL and GSIS_GOV_TEST_URL. Mirrors the 4 endpoints of the ΚΕΔ document v6.7 and its test
+// users, under /oauth2server (citizens) and /oauth2servergov (civil servants). Never deploy this.
 import http from "node:http";
 import { randomBytes } from "node:crypto";
 
 const PORT = Number(process.env.MOCK_GSIS_PORT ?? 8090);
-const BASE = "/oauth2server";
+// ponytail: both services share the same test users; the ΚΕΔ document only lists TAXISnet ones.
+const BASES = ["/oauth2server", "/oauth2servergov"];
 
 // Usernames/passwords/ΑΦΜ from the ΚΕΔ document; names are placeholders.
 const USERS = {
@@ -36,7 +38,7 @@ function send(res, status, body, type = "text/plain; charset=utf-8", headers = {
   res.end(body);
 }
 
-function loginPage(query, error = "") {
+function loginPage(base, query, error = "") {
   const hidden = ["client_id", "redirect_uri", "state"]
     .map(key => `<input type="hidden" name="${key}" value="${esc(query.get(key))}">`).join("");
   const rows = Object.entries(USERS).map(([name, u]) => `<tr><td>${name}</td><td>${u.password}</td><td>${u.taxid}</td></tr>`).join("");
@@ -44,7 +46,7 @@ function loginPage(query, error = "") {
 <body style="font-family:system-ui;max-width:420px;margin:40px auto">
 <p style="background:#fef3c7;padding:8px;border-radius:6px"><b>MOCK</b> — τοπικός προσομοιωτής, όχι το πραγματικό TAXISnet.</p>
 <h2>Σύνδεση TAXISnet</h2>${error ? `<p style="color:#b91c1c">${esc(error)}</p>` : ""}
-<form method="post" action="${BASE}/oauth/authorize">${hidden}
+<form method="post" action="${base}/oauth/authorize">${hidden}
 <p><label>Χρήστης<br><input name="username" value="Testked1" autofocus></label></p>
 <p><label>Κωδικός<br><input name="password" type="password" value="Testked1!"></label></p>
 <button>Είσοδος</button></form>
@@ -54,21 +56,22 @@ function loginPage(query, error = "") {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const path = url.pathname;
+  const base = BASES.find(b => url.pathname.startsWith(`${b}/`));
+  const path = base ? url.pathname.slice(base.length) : url.pathname;
 
-  if (path === `${BASE}/oauth/authorize` && req.method === "GET") {
+  if (path === "/oauth/authorize" && req.method === "GET") {
     const q = url.searchParams;
     if (q.get("response_type") !== "code" || q.get("scope") !== "read" || !q.get("client_id") || !q.get("redirect_uri")) {
       return send(res, 400, "authorize: expected response_type=code, scope=read, client_id, redirect_uri");
     }
-    return send(res, 200, loginPage(q), "text/html; charset=utf-8");
+    return send(res, 200, loginPage(base, q), "text/html; charset=utf-8");
   }
 
-  if (path === `${BASE}/oauth/authorize` && req.method === "POST") {
+  if (path === "/oauth/authorize" && req.method === "POST") {
     const form = await readBody(req);
     const user = USERS[form.get("username")];
     if (!user || user.password !== form.get("password")) {
-      return send(res, 200, loginPage(form, "Λάθος στοιχεία."), "text/html; charset=utf-8");
+      return send(res, 200, loginPage(base, form, "Λάθος στοιχεία."), "text/html; charset=utf-8");
     }
     const code = randomBytes(4).toString("hex").toUpperCase();
     codes.set(code, { username: form.get("username"), clientId: form.get("client_id"), redirectUri: form.get("redirect_uri") });
@@ -78,7 +81,7 @@ const server = http.createServer(async (req, res) => {
     return send(res, 302, "", "text/plain", { Location: back.toString() });
   }
 
-  if (path === `${BASE}/oauth/token` && req.method === "POST") {
+  if (path === "/oauth/token" && req.method === "POST") {
     const form = await readBody(req);
     const grant = codes.get(form.get("code"));
     codes.delete(form.get("code"));
@@ -92,7 +95,7 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, JSON.stringify({ access_token: token, token_type: "bearer", expires_in: 3600, scope: "read" }), "application/json");
   }
 
-  if (path === `${BASE}/userinfo` && req.method === "GET") {
+  if (path === "/userinfo" && req.method === "GET") {
     const username = tokens.get((req.headers.authorization ?? "").replace(/^Bearer /, ""));
     if (!username) return send(res, 401, "invalid_token");
     const u = USERS[username];
@@ -102,7 +105,7 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, `<?xml version="1.0" encoding="UTF-8"?><root><userinfo ${attrs}/></root>`, "application/xml; charset=utf-8");
   }
 
-  if (path.startsWith(`${BASE}/logout/`) && req.method === "GET") {
+  if (path.startsWith("/logout/") && req.method === "GET") {
     const target = url.searchParams.get("url");
     return target ? send(res, 302, "", "text/plain", { Location: target }) : send(res, 200, "logged out");
   }
@@ -110,4 +113,4 @@ const server = http.createServer(async (req, res) => {
   send(res, 404, "not found");
 });
 
-server.listen(PORT, () => console.log(`MOCK GSIS OAuth2 on http://localhost:${PORT}${BASE}`));
+server.listen(PORT, () => console.log(`MOCK GSIS OAuth2 on http://localhost:${PORT} (${BASES.join(", ")})`));

@@ -21,17 +21,26 @@ import org.keycloak.models.KeycloakSession;
 
 public class GsisGovuserTestIdentityProvider extends GsisAbstractIdentityProvider {
 
-  public static final String AUTH_URL = "https://test.gsis.gr/oauth2servergov/oauth/authorize";
+  // INTRAWAY: as in GsisTaxisTestIdentityProvider, the pilot endpoints can point at a local mock:
+  // GSIS_GOV_TEST_URL for the browser, GSIS_GOV_TEST_BACKCHANNEL_URL for Keycloak. Unset = test.gsis.gr.
+  private static final String FRONT_BASE = env("GSIS_GOV_TEST_URL", "https://test.gsis.gr/oauth2servergov");
 
-  public static final String TOKEN_URL = "https://test.gsis.gr/oauth2servergov/oauth/token";
+  private static final String BACK_BASE = env("GSIS_GOV_TEST_BACKCHANNEL_URL", FRONT_BASE);
+
+  public static final String AUTH_URL = FRONT_BASE + "/oauth/authorize";
+
+  public static final String TOKEN_URL = BACK_BASE + "/oauth/token";
 
   public static final String DEFAULT_SCOPE = "";
 
-  private static final String USER_INFO_URL =
-      "https://test.gsis.gr/oauth2servergov/userinfo?format=xml";
+  private static final String USER_INFO_URL = BACK_BASE + "/userinfo?format=xml";
 
-  private static final String LOGOUT_URL =
-      "https://test.gsis.gr/oauth2servergov/logout/{clientId}/";
+  private static final String LOGOUT_URL = FRONT_BASE + "/logout/{clientId}/";
+
+  private static String env(String name, String fallback) {
+    String value = System.getenv(name);
+    return value == null || value.isBlank() ? fallback : value.replaceAll("/+$", "");
+  }
 
   public GsisGovuserTestIdentityProvider(KeycloakSession session,
       OAuth2IdentityProviderConfig config) {

@@ -18,16 +18,19 @@ import urllib.parse
 import urllib.request
 
 KC = (sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8280").rstrip("/")
-REALM = f"{KC}/realms/opeka-citizens/protocol/openid-connect"
+# STAFF=1: the opeka-staff realm (Δημόσια Διοίκηση provider, roles) instead of opeka-citizens.
+STAFF = os.environ.get("STAFF") == "1"
+REALM = f"{KC}/realms/{'opeka-staff' if STAFF else 'opeka-citizens'}/protocol/openid-connect"
+IDP = "gsis-govuser-test" if STAFF else "gsis-taxis-test"
 # Default: the public opeka-portal client. A confidential client: CLIENT=… SECRET=… REDIRECT=… python3 smoke-test.py
 CLIENT = os.environ.get("CLIENT", "opeka-portal")
 SECRET = os.environ.get("SECRET")
 PORTAL = os.environ.get("REDIRECT", "http://localhost:5173/")
 USER, PASSWORD, AFM = "Testked1", "Testked1!", "660074100"
-# LOCAL=1: log in with a Keycloak account (polites1, ΑΦΜ 660074100) instead of TAXISnet.
+# LOCAL=1: log in with a Keycloak account (polites1 / ypallilos1) instead of GSIS.
 LOCAL = os.environ.get("LOCAL") == "1"
 if LOCAL:
-    USER, PASSWORD = "polites1", "Polites1!"
+    USER, PASSWORD, AFM = ("ypallilos1", "Ypallilos1!", "056272436") if STAFF else ("polites1", "Polites1!", AFM)
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -68,7 +71,7 @@ challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest())
 auth = f"{REALM}/auth?" + urllib.parse.urlencode({
     "client_id": CLIENT, "redirect_uri": PORTAL, "response_type": "code", "scope": "openid",
     "state": "smoke", "code_challenge": challenge, "code_challenge_method": "S256",
-    **({} if LOCAL else {"kc_idp_hint": "gsis-taxis-test"}),
+    **({} if LOCAL else {"kc_idp_hint": IDP}),
 })
 
 if LOCAL:
@@ -82,7 +85,7 @@ if LOCAL:
 else:
     # 1. Keycloak hands the browser to the (mock) GSIS login page.
     gsis_url, page = follow(auth)
-    assert "/oauth2server/oauth/authorize" in gsis_url and "TAXISnet" in page, f"not on GSIS login: {gsis_url}"
+    assert ("/oauth2servergov/" if STAFF else "/oauth2server/") + "oauth/authorize" in gsis_url and "TAXISnet" in page, f"not on GSIS login: {gsis_url}"
     query = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(gsis_url).query))
     assert query["scope"] == "read", f"ΚΕΔ requires scope=read, got {query['scope']!r}"
     print("1. GSIS login page, scope=read")
@@ -109,6 +112,10 @@ print(f"3. access token: afm={payload['afm']} name={payload.get('family_name')} 
 if LOCAL:
     assert "identity_provider" not in payload, "a Keycloak account must not look like a TAXISnet login"
 if "identity_provider" in payload:
-    assert payload["identity_provider"] == "gsis-taxis-test", payload["identity_provider"]
+    assert payload["identity_provider"] == IDP, payload["identity_provider"]
     print(f"4. identity_provider={payload['identity_provider']}")
+if STAFF:
+    print(f"5. roles={payload.get('roles')}")
+    if LOCAL:
+        assert set(payload.get("roles", [])) >= {"OPEKA_LAE", "OPEKA_DOCUMENTS", "OPEKA_DEBTORS"}, payload.get("roles")
 print("OK")

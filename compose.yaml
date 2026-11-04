@@ -1,4 +1,4 @@
-# Local development stack: Keycloak (realm opeka-citizens) + Postgres + mock GSIS.
+# Local development stack: Keycloak (realms opeka-citizens, opeka-staff) + Postgres + mock GSIS.
 # docker compose up --build   → admin console http://localhost:8280 (admin / admin); port via KC_PORT
 name: opeka-keycloak
 
@@ -34,9 +34,11 @@ services:
       KC_HOSTNAME: http://localhost:${KC_PORT:-8280}
       KC_HEALTH_ENABLED: "true"
       # Point the gsis-taxis-test provider at the mock: browser via localhost, Keycloak via the service name.
-      # Remove both to use the real https://test.gsis.gr (needs ΕΔΑ pilot credentials).
+      # Remove them to use the real https://test.gsis.gr (needs ΕΔΑ pilot credentials).
       GSIS_TEST_URL: http://localhost:8090/oauth2server
       GSIS_TEST_BACKCHANNEL_URL: http://mock-gsis:8090/oauth2server
+      GSIS_GOV_TEST_URL: http://localhost:8090/oauth2servergov
+      GSIS_GOV_TEST_BACKCHANNEL_URL: http://mock-gsis:8090/oauth2servergov
     ports:
       - "${KC_PORT:-8280}:8080"
     volumes:
