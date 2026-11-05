@@ -61,7 +61,7 @@ of someone who already has a Keycloak account ends on "add to existing account" 
 
 Both realms: https required except from localhost/private networks (`sslRequired: external`), account lockout
 after 5 failed logins (brute-force detection), and a password policy for Keycloak accounts (8+ characters, not
-the username or email). Login pages default to Greek; English follows the browser's language.
+the username or email; staff passwords also expire after 90 days, ΛΑΕ UC-01). Login pages default to Greek; English follows the browser's language.
 
 They use the ΚΕΔ test ΑΦΜ, so they match `Testked1`–`3` once TAXISnet is on. An app shows Keycloak's login form
 when it sends no `kc_idp_hint`: for the LandPage, leave `PORTAL_TAXISNET_IDENTITY_PROVIDER` empty. These accounts have
