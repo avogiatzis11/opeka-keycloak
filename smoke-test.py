@@ -26,8 +26,17 @@ IDP = "gsis-govuser-test" if STAFF else "gsis-taxis-test"
 CLIENT = os.environ.get("CLIENT", "opeka-portal")
 SECRET = os.environ.get("SECRET")
 PORTAL = os.environ.get("REDIRECT", "http://localhost:5173/")
-# ΚΕΔ test users: citizens Testked1–5, staff (Δημόσια Διοίκηση) the legal persons Nomked1, Nomked2, Foreas_parav2.
-USER, PASSWORD, AFM = ("Nomked1", "Nomked1!", "098120800") if STAFF else ("Testked1", "Testked1!", "660074100")
+# ΚΕΔ test users (password, ΑΦΜ, staff roles): citizens Testked1–5, staff (Δημόσια Διοίκηση) the legal persons.
+# KC_USER=… picks one (default Testked1, or Nomked1 with STAFF=1).
+CITIZENS = {f"Testked{n}": (f"Testked{n}!", afm, None)
+            for n, afm in enumerate(["660074100", "660074111", "660074123", "660074135", "660074147"], 1)}
+STAFF_USERS = {"Nomked1": ("Nomked1!", "098120800", {"OPEKA_LAE", "OPEKA_DOCUMENTS", "OPEKA_DEBTORS"}),
+               "Nomked2": ("Nomked2!", "090374553", {"OPEKA_LAE"}),
+               "Foreas_parav2": ("Fparav2!", "800050066", {"OPEKA_DOCUMENTS", "OPEKA_DEBTORS"})}
+USERS = STAFF_USERS if STAFF else CITIZENS
+USER = os.environ.get("KC_USER", "Nomked1" if STAFF else "Testked1")
+assert USER in USERS, f"KC_USER must be one of {', '.join(USERS)}"
+PASSWORD, AFM, ROLES = USERS[USER]
 # LOCAL=1: log in with the Keycloak account (same ΚΕΔ test user, password stored in Keycloak) instead of GSIS.
 LOCAL = os.environ.get("LOCAL") == "1"
 
@@ -125,5 +134,5 @@ if "identity_provider" in payload:
 if STAFF:
     print(f"5. roles={payload.get('roles')}")
     if LOCAL:
-        assert set(payload.get("roles", [])) >= {"OPEKA_LAE", "OPEKA_DOCUMENTS", "OPEKA_DEBTORS"}, payload.get("roles")
+        assert set(payload.get("roles", [])) == ROLES, f"{USER} roles {payload.get('roles')} != {sorted(ROLES)}"
 print("OK")

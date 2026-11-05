@@ -29,6 +29,7 @@ docker compose up --build -d     # Keycloak http://localhost:8280 (admin/admin),
 python3 smoke-test.py            # portal PKCE → TAXISnet (mock) → Keycloak → token with the afm claim
 CLIENT=opeka-civil-web SECRET=local-civil-secret REDIRECT=http://localhost:8082/login/oauth2/code/taxisnet python3 smoke-test.py
 LOCAL=1 python3 smoke-test.py    # same, with a Keycloak account instead of TAXISnet
+KC_USER=Testked3 LOCAL=1 python3 smoke-test.py   # any ΚΕΔ user; with STAFF=1 it also checks that user's own roles
 # Staff realm (STAFF=1): GovUser (mock), then a Keycloak account with the three roles
 STAFF=1 CLIENT=opeka-landpage SECRET=local-landpage-staff-secret REDIRECT=http://localhost:8082/login/oauth2/code/public-admin python3 smoke-test.py
 STAFF=1 LOCAL=1 CLIENT=opeka-landpage SECRET=local-landpage-staff-secret REDIRECT=http://localhost:8082/login/oauth2/code/public-admin python3 smoke-test.py
