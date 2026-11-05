@@ -26,11 +26,10 @@ IDP = "gsis-govuser-test" if STAFF else "gsis-taxis-test"
 CLIENT = os.environ.get("CLIENT", "opeka-portal")
 SECRET = os.environ.get("SECRET")
 PORTAL = os.environ.get("REDIRECT", "http://localhost:5173/")
-USER, PASSWORD, AFM = "Testked1", "Testked1!", "660074100"
-# LOCAL=1: log in with a Keycloak account (polites1 / ypallilos1) instead of GSIS.
+# ΚΕΔ test users: citizens Testked1–5, staff (Δημόσια Διοίκηση) the legal persons Nomked1, Nomked2, Foreas_parav2.
+USER, PASSWORD, AFM = ("Nomked1", "Nomked1!", "098120800") if STAFF else ("Testked1", "Testked1!", "660074100")
+# LOCAL=1: log in with the Keycloak account (same ΚΕΔ test user, password stored in Keycloak) instead of GSIS.
 LOCAL = os.environ.get("LOCAL") == "1"
-if LOCAL:
-    USER, PASSWORD, AFM = ("ypallilos1", "Ypallilos1!", "056272436") if STAFF else ("polites1", "Polites1!", AFM)
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -80,7 +79,7 @@ if LOCAL:
     action = re.search(r'id="kc-form-login"[^>]*action="([^"]+)"', page)
     assert action, "no Keycloak login form"
     back, page = follow(action.group(1).replace("&amp;", "&"), {"username": USER, "password": PASSWORD}, stop_prefix=PORTAL)
-    assert back, f"local login failed:\n{re.sub(r'<[^>]+>', ' ', page)[:800]}"
+    assert back and back.startswith(PORTAL), f"local login failed:\n{re.sub(r'<[^>]+>', ' ', page)[:800]}"
     print("1–2. Keycloak account login, code returned to portal")
 else:
     # 1. Keycloak hands the browser to the (mock) GSIS login page.
@@ -94,7 +93,16 @@ else:
     form = {"client_id": query["client_id"], "redirect_uri": query["redirect_uri"], "state": query["state"],
             "username": USER, "password": PASSWORD}
     back, page = follow(gsis_url.split("?")[0], form, stop_prefix=PORTAL)
-    assert back, f"no redirect to portal; Keycloak showed a page instead:\n{re.sub(r'<[^>]+>', ' ', page)[:800]}"
+    if "/first-broker-login" in back:
+        # The realm already has a Keycloak account for this ΚΕΔ user: link it once (Keycloak asks for its password).
+        link = re.search(r'id="kc-register-form"[^>]*action="([^"]+)"', page)
+        assert link, "no account-link form on first broker login"
+        _, page = follow(link.group(1).replace("&amp;", "&"), {"submitAction": "linkAccount"})
+        login = re.search(r'id="kc-form-login"[^>]*action="([^"]+)"', page)
+        assert login, f"no re-authentication form:\n{re.sub(r'<[^>]+>', ' ', page)[:800]}"
+        back, page = follow(login.group(1).replace("&amp;", "&"), {"username": USER, "password": PASSWORD}, stop_prefix=PORTAL)
+        print("2a. existing Keycloak account linked to the GSIS identity")
+    assert back.startswith(PORTAL), f"no redirect to portal; Keycloak showed a page instead:\n{re.sub(r'<[^>]+>', ' ', page or '')[:800]}"
     print("2. brokered login, code returned to portal")
 code = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(back).query))["code"]
 
