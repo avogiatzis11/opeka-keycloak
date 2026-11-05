@@ -237,14 +237,13 @@
   ],
   "users": [
     {
-      "username": "ypallilos1",
+      "username": "Nomked1",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "ΥΠΑΛΛΗΛΟΣ ΕΝΑ",
-      "lastName": "ΔΟΚΙΜΑΣΤΙΚΟΣ",
+      "lastName": "ΔΟΚΙΜΑΣΤΙΚΗ ΕΤΑΙΡΕΙΑ ΑΕ",
       "attributes": {
         "afm": [
-          "056272436"
+          "098120800"
         ]
       },
       "realmRoles": [
@@ -255,20 +254,19 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Ypallilos1!",
+          "value": "Nomked1!",
           "temporary": false
         }
       ]
     },
     {
-      "username": "ypallilos2",
+      "username": "Nomked2",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "ΥΠΑΛΛΗΛΟΣ ΔΥΟ",
-      "lastName": "ΔΟΚΙΜΑΣΤΙΚΗ",
+      "lastName": "ΔΟΚΙΜΑΣΤΙΚΗ ΕΤΑΙΡΕΙΑ ΔΥΟ ΑΕ",
       "attributes": {
         "afm": [
-          "660074111"
+          "090374553"
         ]
       },
       "realmRoles": [
@@ -277,20 +275,19 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Ypallilos2!",
+          "value": "Nomked2!",
           "temporary": false
         }
       ]
     },
     {
-      "username": "ypallilos3",
+      "username": "Foreas_parav2",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "ΥΠΑΛΛΗΛΟΣ ΤΡΙΑ",
-      "lastName": "ΔΟΚΙΜΑΣΤΙΚΟΣ",
+      "lastName": "ΔΟΚΙΜΑΣΤΙΚΟΣ ΦΟΡΕΑΣ",
       "attributes": {
         "afm": [
-          "660074123"
+          "800050066"
         ]
       },
       "realmRoles": [
@@ -300,7 +297,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Ypallilos3!",
+          "value": "Fparav2!",
           "temporary": false
         }
       ]

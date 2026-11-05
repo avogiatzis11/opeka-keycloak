@@ -17,6 +17,8 @@ const USERS = {
   Testked4: { password: "Testked4!", taxid: "660074135", lastname: "ΔΟΚΙΜΑΣΤΙΚΗ", firstname: "ΧΡΗΣΤΡΙΑ ΤΕΣΣΕΡΑ", fathername: "ΔΗΜΗΤΡΙΟΣ", mothername: "ΣΟΦΙΑ", birthyear: "1960" },
   Testked5: { password: "Testked5!", taxid: "660074147", lastname: "ΔΟΚΙΜΑΣΤΙΚΟΣ", firstname: "ΧΡΗΣΤΗΣ ΠΕΝΤΕ", fathername: "ΚΩΝΣΤΑΝΤΙΝΟΣ", mothername: "ΑΝΝΑ", birthyear: "2000" },
   Nomked1: { password: "Nomked1!", taxid: "098120800", lastname: "ΔΟΚΙΜΑΣΤΙΚΗ ΕΤΑΙΡΕΙΑ ΑΕ" },
+  Nomked2: { password: "Nomked2!", taxid: "090374553", lastname: "ΔΟΚΙΜΑΣΤΙΚΗ ΕΤΑΙΡΕΙΑ ΔΥΟ ΑΕ" },
+  Foreas_parav2: { password: "Fparav2!", taxid: "800050066", lastname: "ΔΟΚΙΜΑΣΤΙΚΟΣ ΦΟΡΕΑΣ" },
 };
 
 const codes = new Map();  // code → { username, clientId, redirectUri }

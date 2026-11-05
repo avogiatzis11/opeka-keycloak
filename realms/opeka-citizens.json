@@ -342,7 +342,7 @@
   },
   "users": [
     {
-      "username": "polites1",
+      "username": "Testked1",
       "enabled": true,
       "emailVerified": true,
       "firstName": "ΧΡΗΣΤΗΣ ΕΝΑ",
@@ -364,13 +364,13 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Polites1!",
+          "value": "Testked1!",
           "temporary": false
         }
       ]
     },
     {
-      "username": "polites2",
+      "username": "Testked2",
       "enabled": true,
       "emailVerified": true,
       "firstName": "ΧΡΗΣΤΡΙΑ ΔΥΟ",
@@ -392,13 +392,13 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Polites2!",
+          "value": "Testked2!",
           "temporary": false
         }
       ]
     },
     {
-      "username": "polites3",
+      "username": "Testked3",
       "enabled": true,
       "emailVerified": true,
       "firstName": "ΧΡΗΣΤΗΣ ΤΡΙΑ",
@@ -420,7 +420,63 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Polites3!",
+          "value": "Testked3!",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "Testked4",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "ΧΡΗΣΤΡΙΑ ΤΕΣΣΕΡΑ",
+      "lastName": "ΔΟΚΙΜΑΣΤΙΚΗ",
+      "attributes": {
+        "afm": [
+          "660074135"
+        ],
+        "fatherName": [
+          "ΔΗΜΗΤΡΙΟΣ"
+        ],
+        "motherName": [
+          "ΣΟΦΙΑ"
+        ],
+        "birthYear": [
+          "1960"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Testked4!",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "Testked5",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "ΧΡΗΣΤΗΣ ΠΕΝΤΕ",
+      "lastName": "ΔΟΚΙΜΑΣΤΙΚΟΣ",
+      "attributes": {
+        "afm": [
+          "660074147"
+        ],
+        "fatherName": [
+          "ΚΩΝΣΤΑΝΤΙΝΟΣ"
+        ],
+        "motherName": [
+          "ΑΝΝΑ"
+        ],
+        "birthYear": [
+          "2000"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Testked5!",
           "temporary": false
         }
       ]

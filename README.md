@@ -45,16 +45,19 @@ LandPage against both realms: `PORTAL_TAXISNET_ISSUER=http://localhost:8280/real
 ### Keycloak accounts until there is a server (decided 2026-10-29)
 
 GSIS needs an https Keycloak host registered with ΓΓΠΣΨΔ, so for now people log in with accounts stored in
-Keycloak. The realms create them on import (dev only, the passwords are in the JSON):
+Keycloak. They are the ΚΕΔ test users of the GSIS OAuth2 document v6.7 §4, with the same username, password and ΑΦΜ:
+the 5 natural persons are the citizens, the 3 legal persons are the staff (Δημόσια Διοίκηση) accounts. They carry the
+attributes the GSIS userinfo returns: natural persons afm, names, father/mother name, birth year; legal persons only
+afm and επωνυμία (as last name). Names are placeholders, as in `mock-gsis/`, which has the same 8 users. A GSIS login
+of someone who already has a Keycloak account ends on "add to existing account" once (Keycloak's password), so an
+ΑΦΜ never gets two users. The realms create them on import (dev only, the passwords are in the JSON):
 
 | Realm | Username | Password | ΑΦΜ | Roles |
 |---|---|---|---|---|
-| citizens | `polites1` | `Polites1!` | 660074100 | — |
-| citizens | `polites2` | `Polites2!` | 660074111 | — |
-| citizens | `polites3` | `Polites3!` | 660074123 | — |
-| staff | `ypallilos1` | `Ypallilos1!` | 056272436 | all three |
-| staff | `ypallilos2` | `Ypallilos2!` | 660074111 | `OPEKA_LAE` |
-| staff | `ypallilos3` | `Ypallilos3!` | 660074123 | `OPEKA_DOCUMENTS`, `OPEKA_DEBTORS` |
+| citizens | `Testked1`…`Testked5` | `Testked1!`…`Testked5!` | 660074100 / 111 / 123 / 135 / 147 | — |
+| staff | `Nomked1` | `Nomked1!` | 098120800 | all three |
+| staff | `Nomked2` | `Nomked2!` | 090374553 | `OPEKA_LAE` |
+| staff | `Foreas_parav2` | `Fparav2!` | 800050066 | `OPEKA_DOCUMENTS`, `OPEKA_DEBTORS` |
 
 Both realms: https required except from localhost/private networks (`sslRequired: external`), account lockout
 after 5 failed logins (brute-force detection), and a password policy for Keycloak accounts (8+ characters, not
