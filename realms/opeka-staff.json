@@ -60,6 +60,96 @@
       {
         "name": "OPEKA_DEBTORS",
         "description": "Πρόσβαση στο Μητρώο Οφειλετών"
+      },
+      {
+        "name": "LAE_01",
+        "description": "ΛΑΕ: Διαχειριστής (προφίλ 01). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_A1",
+        "description": "ΛΑΕ: Ελεγκτής Α΄ Μητρώου (προφίλ A1). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_B1",
+        "description": "ΛΑΕ: Ελεγκτής Β΄ Μητρώου / Προϊστάμενος (προφίλ B1). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_A2",
+        "description": "ΛΑΕ: Ελεγκτής Α΄ Επιδοτήσεων (προφίλ A2). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_B2",
+        "description": "ΛΑΕ: Ελεγκτής Β΄ Επιδοτήσεων (προφίλ B2). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_BENEFITS_SUPERVISOR",
+        "description": "ΛΑΕ: Προϊστάμενος Παροχών (προφίλ BENEFITS_SUPERVISOR). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_I1",
+        "description": "ΛΑΕ: Επιθεώρηση (μόνο ανάγνωση) (προφίλ I1). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_ACCOUNTING",
+        "description": "ΛΑΕ: Λογιστήριο (προφίλ ACCOUNTING). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
+      },
+      {
+        "name": "LAE_PROTOCOL",
+        "description": "ΛΑΕ: Πρωτόκολλο (προφίλ PROTOCOL). Ένα μόνο LAE_ ανά χρήστη.",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "OPEKA_LAE"
+          ]
+        }
       }
     ]
   },
@@ -233,6 +323,55 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "opeka-lae",
+      "name": "ΛΑΕ / Μητρώο (opeka-REGISTRY)",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "local-lae-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/opeka/auth/oidc/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "afm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "afm",
+            "claim.name": "afm",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
     }
   ],
   "users": [
@@ -249,7 +388,8 @@
       "realmRoles": [
         "OPEKA_LAE",
         "OPEKA_DOCUMENTS",
-        "OPEKA_DEBTORS"
+        "OPEKA_DEBTORS",
+        "LAE_01"
       ],
       "credentials": [
         {
@@ -270,7 +410,8 @@
         ]
       },
       "realmRoles": [
-        "OPEKA_LAE"
+        "OPEKA_LAE",
+        "LAE_A1"
       ],
       "credentials": [
         {
